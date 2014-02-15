@@ -1,6 +1,7 @@
 package se.repos.rweb.php;
 
 import java.io.File;
+import java.net.URL;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -23,16 +24,16 @@ public abstract class ReposPhpBridge {
 
 	public static final Logger logger = LoggerFactory.getLogger(ReposPhpBridge.class);
 	
-	static Injector getContext(String repositoryName) {
-		return getContextNew(repositoryName);
+	static Injector getContext(URL repositoryUrl) {
+		return getContextNew(repositoryUrl);
 	}
 	
-	static Injector getContextNew(String repositoryUrl) {
+	static Injector getContextNew(URL repositoryUrl) {
 		// assume that type is svn, because that's what repos-web PHP supports
-		String repositoryName = new CmsRepository(repositoryUrl).getName();
+		CmsRepository repo = new CmsRepository(repositoryUrl.toString());
 		File parentadmin = new File("/tmp/not-expected-to-use-admin-access-here");
-		File repoadmin = new File(parentadmin, repositoryName);
-		CmsRepositorySvn repository = new CmsRepositorySvn(repositoryUrl, repoadmin);
+		File repoadmin = new File(parentadmin, repo.getName());
+		CmsRepositorySvn repository = new CmsRepositorySvn(repo.getUrl(), repoadmin);
 		Injector context = Guice.createInjector(new RepositoryModuleSvn(repository));
 		return context;
 	}
@@ -43,7 +44,7 @@ public abstract class ReposPhpBridge {
 	 * @param target path starting with slash, not encoded
 	 * @return
 	 */
-	public static CmsItem getItem(String repositoryUrl, String target) {
+	public static CmsItem getItem(URL repositoryUrl, String target) {
 		logger.debug("Read info for {} {}", repositoryUrl, target);
 		CmsItemPath path = new CmsItemPath(target);
 		Injector context = getContext(repositoryUrl);
@@ -72,15 +73,29 @@ What _readInfoSvn returned: Array
     [name] => lock-oo.png
 )
 	 */	
-	public static Map<String, String> getInfo(String repositoryUrl, String path) {
+	public static Map<String, String> getInfo(URL repositoryUrl, String path) {
 		Map<String, String> info = new LinkedHashMap<String, String>();
 		CmsItem item = getItem(repositoryUrl, path);
 		info.put("revision", Long.toString(item.getRevisionChanged().getNumber()));
+		info.put("kind", item.getKind().getKind());
 		info.put("url", item.getId().getUrl());
 		info.put("author", item.getRevisionChangedAuthor());
 		info.put("date", item.getRevisionChanged().getDateIso());
 		// TODO lock info
 		return info;
 	}
+	
+	public static boolean isWritable(URL fileUrl) {
+		// the worst that can happen with false positives, given repos authproxy concept, is that an operation will fail
+		// but repos-web needs this info for usability also
+		return true; // TODO implement access control check
+		// we could use repos-web style conditional requests, or ask svn access file
+	}
+	
+	public static boolean isWritableFolder(URL fileUrl) {
+		// the worst that can happen with false positives, given repos authproxy concept, is that an operation will fail
+		// but repos-web needs this info for usability also
+		return true; // TODO implement access control check
+	}	
 	
 }
