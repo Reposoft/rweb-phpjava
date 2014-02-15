@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	
+	<artifactId>rweb-phpjava</artifactId>
+	<version>1-SNAPSHOT</version>
+	<packaging>war</packaging>
+	
+	<name>rweb-phpjava</name>
+	<url>http://www.repos.se/</url>
+	
+	<parent>
+		<groupId>se.repos</groupId>
+		<artifactId>maven-parent</artifactId>
+		<version>2.4</version>
+		<relativePath/>
+	</parent>
+	
+	<scm>
+		<developerConnection>scm:svn:https://labs.repos.se/svn/${project.artifactId}/trunk</developerConnection>
+		<tag>HEAD</tag>
+	</scm>
+
+	<issueManagement>
+		<system>Trac</system>
+		<url>https://labs.repos.se/trac/</url>
+	</issueManagement>
+
+	<repositories>
+		<repository>
+			<id>repos.open.repo</id>
+			<name>Repos Open Repository</name>
+			<url>http://reposserver.sourceforge.net/maven/</url>
+		</repository>		
+	</repositories>
+
+	<dependencies>
+		<!-- GPL <dependency>
+			<groupId>resin</groupId>
+			<artifactId>resin</artifactId>
+			<version>4.0</version>
+			<scope>system</scope>
+			<systemPath>${basedir}/quercus-war-4.0/WEB-INF/lib/resin.jar</systemPath>
+		</dependency> -->
+		<dependency>
+			<groupId>javax.servlet</groupId>
+			<artifactId>servlet-api</artifactId>
+			<version>2.5</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+			<version>1.6.6</version>
+			<scope>provided</scope><!-- by resin, not sure about version -->
+		</dependency>		
+	</dependencies>
+	
+	<build>
+		<finalName>${project.artifactId}</finalName>
+	</build>	
+	
+</project>
