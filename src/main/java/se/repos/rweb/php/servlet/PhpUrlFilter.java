@@ -59,10 +59,15 @@ public class PhpUrlFilter implements Filter {
 		Map<String, String> params = new LinkedHashMap<String, String>();
 		params.put("base", repoName);
 		params.put("target", path);
-		String to = "/open";
+		String to;
 		if ("details".equals(rweb)) {
+			to = "/open/";
 		} else if ("history".equals(rweb)) {
-			to += "/log/";
+			to = "/open/log/";
+		} else if (rweb.startsWith("e.")) {
+			to = "/edit/" + rweb.substring(2) + "/";
+		} else {
+			throw new RuntimeException("Service '" + rweb + "' not recognized"); // TODO status 422 and better looking error message
 		}
 		redirect(request, res, to, params);
 		to += "index.php?target=mupp"; // getting 404 otherwise
