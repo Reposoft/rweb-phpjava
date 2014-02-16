@@ -64,6 +64,12 @@
 			<version>1.6.6</version>
 			<scope>provided</scope><!-- by resin, not sure about version -->
 		</dependency>
+		<dependency>
+			<groupId>se.simonsoft</groupId>
+			<artifactId>cms-testing</artifactId>
+			<version>0.9</version>
+			<scope>test</scope>
+		</dependency>		
 	</dependencies>
 	
 	<build>
