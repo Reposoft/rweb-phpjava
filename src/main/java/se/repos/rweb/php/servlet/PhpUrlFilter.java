@@ -87,7 +87,8 @@ public class PhpUrlFilter implements Filter {
 		for (String p : params.keySet()) {
 			tophp.append(tophp.indexOf("?") < 0 ? '?' : '&');
 			tophp.append(p).append('=');
-			tophp.append(urlencode(params.get(p)));
+			//tophp.append(urlencode(params.get(p)));
+			tophp.append(params.get(p)); // values picked from the original URI look encoded already
 		}
 		Enumeration<?> existing = request.getParameterNames();
 		while (existing.hasMoreElements()) {
