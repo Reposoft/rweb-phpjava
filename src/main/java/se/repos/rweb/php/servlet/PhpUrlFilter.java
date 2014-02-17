@@ -17,6 +17,7 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,7 +26,7 @@ public class PhpUrlFilter implements Filter {
 
 	private static final Logger logger = LoggerFactory.getLogger(PhpUrlFilter.class);
 	
-	private static final Pattern PATTERN_V1 = Pattern.compile("/([^/]+)/v1/([^/]+)/([^/]+)(/.*)");
+	private static final Pattern PATTERN_V1 = Pattern.compile("/([^/]+)/v1/([^/]+)/([^/]+)?(/.*)?");
 	
 	private static final Pattern PATTERN_ERR = Pattern.compile("/([^/]+)/errors/([0-9]+)/?");
 	
@@ -37,6 +38,7 @@ public class PhpUrlFilter implements Filter {
 	public void doFilter(ServletRequest req, ServletResponse res,
 			FilterChain chain) throws IOException, ServletException {
 		HttpServletRequest request = (HttpServletRequest) req;
+		//request.setCharacterEncoding("UTF-8"); // not parameters, should possibly be decided by headers, see http://stackoverflow.com/questions/6876697/how-to-set-request-encoding-in-tomcat
 		// TODO Auto-generated method stub
 		String uri = request.getRequestURI();
 		Matcher vm = PATTERN_V1.matcher(uri);
@@ -48,7 +50,7 @@ public class PhpUrlFilter implements Filter {
 			if (em.matches()) { // error pages should be handled as subrequest, or Quercus won't find them
 				redirect(request, res, "/errors/" + em.group(2) + "/", Collections.<String, String> emptyMap());
 			} else {
-				logger.debug("Passing through URI {}", uri);
+				logger.debug("Passing through URI {} (target={})", uri, request.getParameterValues("target"));
 				chain.doFilter(req, res);
 			}
 		}
@@ -70,8 +72,6 @@ public class PhpUrlFilter implements Filter {
 			throw new RuntimeException("Service '" + rweb + "' not recognized"); // TODO status 422 and better looking error message
 		}
 		redirect(request, res, to, params);
-		to += "index.php?target=mupp"; // getting 404 otherwise
-		request.getRequestDispatcher(to).forward(request, res);
 	}
 
 	protected void redirect(HttpServletRequest request, ServletResponse res,
@@ -87,8 +87,8 @@ public class PhpUrlFilter implements Filter {
 		for (String p : params.keySet()) {
 			tophp.append(tophp.indexOf("?") < 0 ? '?' : '&');
 			tophp.append(p).append('=');
-			//tophp.append(urlencode(params.get(p)));
-			tophp.append(params.get(p)); // values picked from the original URI look encoded already
+			tophp.append(urlencode(params.get(p)));
+			//tophp.append(params.get(p)); // values picked from the original URI look encoded already
 		}
 		Enumeration<?> existing = request.getParameterNames();
 		while (existing.hasMoreElements()) {
