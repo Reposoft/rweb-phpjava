@@ -31,16 +31,10 @@
     </init-param>
     -->
 
-    <!--
     <init-param>
       <param-name>ini-file</param-name>
       <param-value>WEB-INF/php.ini</param-value>
     </init-param>
-    -->
-    <init-param>
-      <param-name>ini-file</param-name>
-      <param-value>/etc/php5/apache2/php.ini</param-value>
-    </init-param>    
     
     <!--
       Location of the license to enable php to java compilation.
