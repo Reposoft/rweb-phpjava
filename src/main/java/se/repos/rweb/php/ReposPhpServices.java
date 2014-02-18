@@ -72,11 +72,11 @@ What _readInfoSvn returned: Array
 			info.put("path", path);
 			return info; // How SvnOpenFile returned non-existent items
 		}
-		info.put("revision", item.getRevisionChanged().getNumber());
+		info.put("lastChangedRevision", item.getRevisionChanged().getNumber());
 		info.put("kind", item.getKind().getKind());
 		info.put("url", item.getId().getUrl());
 		info.put("author", item.getRevisionChangedAuthor());
-		info.put("date", item.getRevisionChanged().getDateIso());
+		info.put("date", item.getRevisionChanged().getDateIso() + "Z");
 		// TODO lock info
 		return info;
 	}
