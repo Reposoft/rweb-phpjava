@@ -1,6 +1,7 @@
 package se.repos.rweb.php;
 
 import java.net.URL;
+import java.nio.charset.Charset;
 import java.util.Map;
 
 import org.slf4j.Logger;
@@ -16,12 +17,22 @@ import se.simonsoft.cms.item.CmsItem;
  * 
  * Only trivial services that need no testing may be implemented here.
  * For actual service javadoc see {@link ReposPhpServices}.
+ * 
+ * For arguments that may contain UTF-8 characters: we have a situation where mb_detect_encoding
+ * in Repos says that the string is UTF-8, but it arrives in java with double chars.
+ * http://www.caucho.com/resin-3.1/doc/quercus.xtp#MarshallingPHPtoJavaconversions hints of non-unicode
+ * but nothing works with unicode.semantics on.
+ * The theory is that Repos' runs UTF-8 internally which is unexpected for PHP5. We don't cange this,
+ * so our java bridge should take byte[] instead of String and convert explicitly.
+ * 
  */
 public abstract class ReposPhpBridge {
 
 	private static final Logger logger = LoggerFactory.getLogger(ReposPhpBridge.class);
 	
 	private static ReposPhpServices services = null;
+	
+	private static final Charset ARG_CHARSET = Charset.forName("UTF-8");
 	
 	static {
 		init();
@@ -37,8 +48,8 @@ public abstract class ReposPhpBridge {
 		return services.getItem(repositoryUrl, target);
 	}
 	
-	public static Map<String, Object> getInfo(URL repositoryUrl, String path) {
-		return services.getInfo(repositoryUrl, path);
+	public static Map<String, Object> getInfo(URL repositoryUrl, byte[] path) {
+		return services.getInfo(repositoryUrl, new String(path, ARG_CHARSET));
 	}
 	
 	public static boolean isWritable(URL fileUrl) {
