@@ -38,9 +38,12 @@ public class PhpUrlFilter implements Filter {
 	public void doFilter(ServletRequest req, ServletResponse res,
 			FilterChain chain) throws IOException, ServletException {
 		HttpServletRequest request = (HttpServletRequest) req;
-		//request.setCharacterEncoding("UTF-8"); // not parameters, should possibly be decided by headers, see http://stackoverflow.com/questions/6876697/how-to-set-request-encoding-in-tomcat
-		// TODO Auto-generated method stub
 		String uri = request.getRequestURI();
+		if (uri.indexOf('+') >= 0) {
+			// if we get decoded uris here in some containers we can easily pass around parameters decoded, but we seem to get UTF-8 and # etc encoded here
+			logger.debug("Encoding + to %2B as paths are expected to be urlencoded at this stage");
+			uri = uri.replace("+", "%2B");
+		}
 		Matcher vm = PATTERN_V1.matcher(uri);
 		if (vm.matches()) {
 			logger.info("Rewriting URI {}", uri);
@@ -87,8 +90,8 @@ public class PhpUrlFilter implements Filter {
 		for (String p : params.keySet()) {
 			tophp.append(tophp.indexOf("?") < 0 ? '?' : '&');
 			tophp.append(p).append('=');
-			tophp.append(urlencode(params.get(p)));
-			//tophp.append(params.get(p)); // values picked from the original URI look encoded already
+			//tophp.append(urlencode(params.get(p)));
+			tophp.append(params.get(p)); // values picked from the original URI look encoded already
 		}
 		Enumeration<?> existing = request.getParameterNames();
 		while (existing.hasMoreElements()) {
