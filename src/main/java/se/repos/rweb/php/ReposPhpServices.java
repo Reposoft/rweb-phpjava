@@ -77,6 +77,9 @@ What _readInfoSvn returned: Array
 		info.put("url", item.getId().getUrl());
 		info.put("author", item.getRevisionChangedAuthor());
 		info.put("date", item.getRevisionChanged().getDateIso() + "Z");
+		if (item.getKind().isFile()) {
+			info.put("size", item.getFilesize());
+		}
 		// TODO lock info
 		return info;
 	}
