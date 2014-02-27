@@ -3,7 +3,6 @@ package se.repos.rweb.php.servlet;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
-import java.util.Collections;
 import java.util.Enumeration;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -17,7 +16,6 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,8 +25,6 @@ public class PhpUrlFilter implements Filter {
 	private static final Logger logger = LoggerFactory.getLogger(PhpUrlFilter.class);
 	
 	private static final Pattern PATTERN_V1 = Pattern.compile("/([^/]+)/v1/([^/]+)/([^/]+)?(/.*)?");
-	
-	private static final Pattern PATTERN_ERR = Pattern.compile("/([^/]+)/errors/([0-9]+)/?");
 	
 	@Override
 	public void destroy() {
@@ -49,13 +45,8 @@ public class PhpUrlFilter implements Filter {
 			logger.info("Rewriting URI {}", uri);
 			rewriteV1(request, res, request.getParameter("rweb"), vm.group(1), vm.group(2), vm.group(3), vm.group(4));
 		} else {
-			Matcher em = PATTERN_ERR.matcher(uri);
-			if (em.matches()) { // error pages should be handled as subrequest, or Quercus won't find them
-				redirect(request, res, "/errors/" + em.group(2) + "/", Collections.<String, String> emptyMap());
-			} else {
-				logger.debug("Passing through URI {} (target={})", uri, request.getParameterValues("target"));
-				chain.doFilter(req, res);
-			}
+			logger.debug("Passing through URI {} (target={})", uri, request.getParameterValues("target"));
+			chain.doFilter(req, res);
 		}
 	}
 	
